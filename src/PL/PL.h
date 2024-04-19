@@ -199,15 +199,8 @@ defined(DEBUG) || \
     void PL_PrintFileAppend(PL_File *file, cstr format, ...);
     
     /*=======================
-      Maths Helpers
+        Maths Functions
     =======================*/
-#define PL_norm32(value, min, max) (((r32)value - (r32)min) / ((r32)max - (r32)min))
-#define PL_norm64(value, min, max) (((r64)value - (r64)min) / ((r64)max - (r64)min))
-#define PL_clamp(value, min, max) ((((value<min)?min:value)>max)?max:value)
-#define PL_clampmin(value, min) ((value<min)?min:value)
-#define PL_clampmax(value, max) ((value>max)?max:value)
-#define PL_clampn(value) ((((value<0.0f)?0.0f:value)>1.0f)?1.0f:value)
-    
     r64 PL_pi64(void); // returns 64bit pi
     r32 PL_pi32(void); // returns 32bit pi
     
@@ -238,7 +231,7 @@ defined(DEBUG) || \
     r32 PL_atan2(r32 y, r32 x);
     
     r32 PL_lerp(r32 a, r32 b, r32 t); // linear interpolation
-    r32 PL_qlerp(r32 a, r32 b, r32 t); // quick lerp (less precise)
+    r32 PL_qlerp(r32 a, r32 b, r32 t); // quick lerp (fewer CPU cycles but less precise)
     
     /*===== RNG and Hashing =========*/
     // get hashed u32 from input (inputSize = sizeof input)
