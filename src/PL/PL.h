@@ -540,6 +540,7 @@ defined(DEBUG) || \
     b32 PL_ToggleWindowFullscreen(void);
     
     // OS message box popups
+    void PL_MsgBox(const cstr title, cstr format, ...);
     void PL_MsgBoxInfo(const cstr title, cstr format, ...);
     void PL_MsgBoxError(const cstr title, cstr format, ...);
     

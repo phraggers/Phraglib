@@ -427,7 +427,7 @@ r32 PL_Rand(void)
     
     PL_RAND_UNION ru;
     for(int i=0;i<4;i++) {ru.rb[i] = (u8)(rand()%0xff);}
-    r32 result = PL_Normalize32(ru.ru32, 0, UINT32_MAX);
+    r32 result = PL_norm32((r32)ru.ru32, 0.0f, (r32)UINT32_MAX);
     
     return result;
 }
@@ -954,6 +954,16 @@ void PL_PrintFileAppend(PL_File *file, cstr format, ...)
     }
 }
 
+void PL_MsgBox(const cstr title, cstr format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    char msg[1024] = {0};
+    vsnprintf(msg, 1024, format, args);
+    va_end(args);
+    MessageBoxA(0, msg, title, MB_OK);
+}
+
 void  PL_MsgBoxInfo(const cstr title, cstr format, ...)
 {
     va_list args;
@@ -1110,7 +1120,7 @@ static PL_KEYCODE Win32_WinKeyToPLKeycode(u32 key, LPARAM lParam)
     }
 }
 
-/*======= Window =========*/
+/*======= State Components =========*/
 
 typedef struct
 {
@@ -1125,14 +1135,30 @@ typedef struct
     HGLRC rc;
 } Win32_Window;
 
-/*========= Timer ==========*/
-
 typedef struct
 {
     PL_Timer timer;
     u64 perfFreq;
     u64 lastFramePerf;
 } Win32_Timer;
+
+typedef enum
+{
+    CPU_UNKNOWN = 0,
+    CPU_AMD64, // amd or intel x64
+    CPU_ARM,
+    CPU_ARM64,
+    CPU_IA64, // intel itanium 64
+    CPU_I86 // intel x86
+} CPU_TYPE;
+
+typedef struct
+{
+    CPU_TYPE cpu;
+    u32 cores;
+    ptr minAppAddress;
+    ptr maxAppAddress;
+} Win32_SystemInfo;
 
 /*========== WIN32 STATE =============*/
 
@@ -1143,6 +1169,7 @@ typedef struct
     u64 userMemorySize;
     ptr userMemory;
     
+    Win32_SystemInfo system;
     Win32_Timer timer;
     Win32_Window window;
     Win32_XInput xinput;
@@ -2289,6 +2316,51 @@ r64 PL_TimerElapsed(u64 timerperf)
     return Win32_GetPerfElapsed(timerperf);
 }
 
+/*========== SystemInfo ===============*/
+
+static void Win32_SetSystemInfo(void)
+{
+    SYSTEM_INFO si = {0};
+    GetNativeSystemInfo(&si);
+    
+    switch(si.wProcessorArchitecture)
+    {
+        case PROCESSOR_ARCHITECTURE_AMD64:
+        {
+            win32_state->system.cpu = CPU_AMD64;
+        } break;
+        
+        case PROCESSOR_ARCHITECTURE_ARM:
+        {
+            win32_state->system.cpu = CPU_ARM;
+        } break;
+        
+        case PROCESSOR_ARCHITECTURE_ARM64:
+        {
+            win32_state->system.cpu = CPU_ARM64;
+        } break;
+        
+        case PROCESSOR_ARCHITECTURE_IA64:
+        {
+            win32_state->system.cpu = CPU_IA64;
+        } break;
+        
+        case PROCESSOR_ARCHITECTURE_INTEL:
+        {
+            win32_state->system.cpu = CPU_I86;
+        } break;
+        
+        default:
+        {
+            win32_state->system.cpu = CPU_UNKNOWN;
+        }
+    }
+    
+    win32_state->system.minAppAddress = (ptr)si.lpMinimumApplicationAddress;
+    win32_state->system.maxAppAddress = (ptr)si.lpMaximumApplicationAddress;
+    win32_state->system.cores = (u32)si.dwNumberOfProcessors;
+}
+
 /*============== WNDPROC ============*/
 
 LRESULT CALLBACK Win32_WndProc(HWND window,
@@ -2381,8 +2453,8 @@ LRESULT CALLBACK Win32_WndProc(HWND window,
             ScreenToClient(win32_window->handle, &cursor);
             input->mouse.px = cursor.x;
             input->mouse.py = cursor.y;
-            input->mouse.rx = (PL_Normalize32(cursor.x, 0, pl_window->dim.w) * 2.0f) - 1.0f;
-            input->mouse.ry = (PL_Normalize32(cursor.y, 0, pl_window->dim.h) * 2.0f) - 1.0f;
+            input->mouse.rx = (PL_norm32((r32)cursor.x, 0.0f, (r32)pl_window->dim.w) * 2.0f) - 1.0f;
+            input->mouse.ry = (PL_norm32((r32)cursor.y, 0.0f, (r32)pl_window->dim.h) * 2.0f) - 1.0f;
         } break;
         
         case WM_LBUTTONDOWN:
@@ -2626,14 +2698,14 @@ static void Win32_ProcessInput(r64 dT)
             gamepad->LT = ((r32)xpad->bLeftTrigger / 255.0f);
             gamepad->RT = ((r32)xpad->bRightTrigger / 255.0f);
             
-            if(xpad->sThumbLX < 0) gamepad->LS.x = PL_Normalize32(xpad->sThumbLX, 0, 32768);
-            else gamepad->LS.x = PL_Normalize32(xpad->sThumbLX, 0, 32767);
-            if(xpad->sThumbLY < 0) gamepad->LS.y = PL_Normalize32(xpad->sThumbLY, 0, 32768);
-            else gamepad->LS.y = PL_Normalize32(xpad->sThumbLY, 0, 32767);
-            if(xpad->sThumbRX < 0) gamepad->RS.x = PL_Normalize32(xpad->sThumbRX, 0, 32768);
-            else gamepad->RS.x = PL_Normalize32(xpad->sThumbRX, 0, 32767);
-            if(xpad->sThumbRY < 0) gamepad->RS.y = PL_Normalize32(xpad->sThumbRY, 0, 32768);
-            else gamepad->RS.y = PL_Normalize32(xpad->sThumbRY, 0, 32767);
+            if(xpad->sThumbLX < 0) gamepad->LS.x = PL_norm32(xpad->sThumbLX, 0, 32768);
+            else gamepad->LS.x = PL_norm32(xpad->sThumbLX, 0, 32767);
+            if(xpad->sThumbLY < 0) gamepad->LS.y = PL_norm32(xpad->sThumbLY, 0, 32768);
+            else gamepad->LS.y = PL_norm32(xpad->sThumbLY, 0, 32767);
+            if(xpad->sThumbRX < 0) gamepad->RS.x = PL_norm32(xpad->sThumbRX, 0, 32768);
+            else gamepad->RS.x = PL_norm32(xpad->sThumbRX, 0, 32767);
+            if(xpad->sThumbRY < 0) gamepad->RS.y = PL_norm32(xpad->sThumbRY, 0, 32768);
+            else gamepad->RS.y = PL_norm32(xpad->sThumbRY, 0, 32767);
             
             if(gamepad->LVib > 1.0f) gamepad->LVib = 1.0f;
             else if(gamepad->LVib < 0.0f) gamepad->LVib = 0.0f;
@@ -2992,6 +3064,7 @@ int CALLBACK WinMain(HINSTANCE instance,
         return -1;
     }
     
+    Win32_SetSystemInfo();
     if(!Win32_LoadUserLib()) return -1;
     if(!Win32_LoadGDILib()) return -1;
     if(!Win32_LoadWGLLib()) return -1;
