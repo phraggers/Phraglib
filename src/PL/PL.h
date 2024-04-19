@@ -164,27 +164,7 @@ defined(DEBUG) || \
     u64 PL_StrCat(cstr src, cstr dst, u64 len);
     // print variables to string
     void PL_StrVar(cstr dst, u64 maxlen, const cstr format, ...);
-    
-    /*============================
-       Maths Helpers
-    =============================*/
-    r32 PL_sqrt(r32 v); // square root
-    i32 PL_sign(i32 v); // sign of
-    r32 PL_abs(r32 v); // absolute value
-    u32 PL_rotl(u32 v, i32 s); // rotate bits left (s times)
-    u32 PL_rotr(u32 v, i32 s); // rotate bits right (s times)
-    i32 PL_round_i32(r32 v); // round r32 to nearest i32
-    u32 PL_round_u32(r32 v); // round r32 to nearest u32
-    i32 PL_floor_i32(r32 v); // floor r32 to i32
-    i32 PL_ceil_i32(r32 v); // ceil r32 to i32
-    i32 PL_trunc_i32(r32 v); // truncate r32 to i32
-    r32 PL_sin(r32 a);
-    r32 PL_cos(r32 a);
-    r32 PL_atan2(r32 y, r32 x);
-    r32 PL_square(r32 v); // v*v
-    r32 PL_lerp(r32 a, r32 b, r32 t); // linear interpolation
-    r32 PL_pow32(r32 v, r32 s); // v^s
-    
+        
     /*============================
             File IO
     =============================*/
@@ -229,6 +209,27 @@ defined(DEBUG) || \
 #define PL_ClampMin(value, min) ((value<min)?min:value)
 #define PL_ClampMax(value, max) ((value>max)?max:value)
     
+    r32 PL_pi32(void); // returns 32bit pi
+    r64 PL_pi64(void); // returns 64bit pi
+    
+    r32 PL_sqrt(r32 v); // square root
+    i32 PL_sign(i32 v); // sign of
+    r32 PL_abs(r32 v); // absolute value
+    u32 PL_rotl(u32 v, i32 s); // rotate bits left (s times)
+    u32 PL_rotr(u32 v, i32 s); // rotate bits right (s times)
+    i32 PL_round_i32(r32 v); // round r32 to nearest i32
+    u32 PL_round_u32(r32 v); // round r32 to nearest u32
+    i32 PL_floor_i32(r32 v); // floor r32 to i32
+    i32 PL_ceil_i32(r32 v); // ceil r32 to i32
+    i32 PL_trunc_i32(r32 v); // truncate r32 to i32
+    r32 PL_sin(r32 a);
+    r32 PL_cos(r32 a);
+    r32 PL_atan2(r32 y, r32 x);
+    r32 PL_square(r32 v); // v*v
+    r32 PL_lerp(r32 a, r32 b, r32 t); // linear interpolation
+    r32 PL_qlerp(r32 a, r32 b, r32 t); // quick lerp (less precise)
+    r32 PL_pow32(r32 v, r32 s); // v^s    
+    
     /*===== RNG and Hashing =========*/
     // get hashed u32 from input (inputSize = sizeof input)
     u32 PL_Hash32(ptr input, u64 inputSize);
@@ -241,12 +242,12 @@ defined(DEBUG) || \
     // auto sizeof macro (just pass address of var, no cast)
 #define PL_SEEDRAND(v) PL_SeedRand((ptr)v, sizeof *(v))
     // Rand macro helpers to cast to PL int types 8-32
-#define PL_RANDI8 ((i8)((PL_Rand()*(r32)UINT8_MAX)-((r32)UINT8_MAX/2)))
-#define PL_RANDU8 ((u8)(PL_Rand()*(r32)UINT8_MAX))
-#define PL_RANDI16 ((i16)((PL_Rand()*UINT16_MAX)-((r32)UINT16_MAX/2)))
-#define PL_RANDU16 ((u16)(PL_Rand()*(r32)UINT16_MAX))
-#define PL_RANDI32 ((i32)((PL_Rand()*UINT32_MAX)-((r32)UINT32_MAX/2)))
-#define PL_RANDU32 ((u32)(PL_Rand()*(r32)UINT32_MAX))
+#define PL_RANDI8 ((i8)PL_round_i32(((PL_Rand()*(r32)UINT8_MAX)-((r32)UINT8_MAX/2))))
+#define PL_RANDU8 ((u8)PL_round_u32((PL_Rand()*(r32)UINT8_MAX)))
+#define PL_RANDI16 ((i16)PL_round_i32(((PL_Rand()*UINT16_MAX)-((r32)UINT16_MAX/2))))
+#define PL_RANDU16 ((u16)PL_round_u32((PL_Rand()*(r32)UINT16_MAX)))
+#define PL_RANDI32 (PL_round_i32(((PL_Rand()*UINT32_MAX)-((r32)UINT32_MAX/2))))
+#define PL_RANDU32 (PL_round_u32((PL_Rand()*(r32)UINT32_MAX)))
     
     /*================
       Timing

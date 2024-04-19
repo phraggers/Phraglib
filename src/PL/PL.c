@@ -311,6 +311,16 @@ void PL_SeedRand(ptr value, u64 valueSize)
 
 /*============= Maths ==================*/
 
+r32 PL_pi32(void)
+{
+    return (r32)3.141592653589793238463;
+}
+
+r64 PL_pi64(void)
+{
+    return (r64)3.141592653589793238462643383279502884L;
+}
+
 r32 PL_sqrt(r32 v)
 {
     return sqrtf(v);
@@ -386,6 +396,11 @@ r32 PL_square(r32 v)
 r32 PL_lerp(r32 a, r32 b, r32 t)
 {
     return ((1.0f-t) *a) + (t*b);
+}
+
+r32 PL_qlerp(r32 a, r32 b, r32 t)
+{
+    return a + t * (b - a);
 }
 
 r32 PL_pow32(r32 v, r32 s)
