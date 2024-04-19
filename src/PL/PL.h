@@ -201,34 +201,44 @@ defined(DEBUG) || \
     /*=======================
       Maths Helpers
     =======================*/
-    // normalize 0.0 to 1.0
-#define PL_Normalize32(value, min, max) (((r32)value - (r32)min) / ((r32)max - (r32)min))
-#define PL_Normalize64(value, min, max) (((r64)value - (r64)min) / ((r64)max - (r64)min))
-    // clamp value to min/max
-#define PL_Clamp(value, min, max) ((((value<min)?min:value)>max)?max:value)
-#define PL_ClampMin(value, min) ((value<min)?min:value)
-#define PL_ClampMax(value, max) ((value>max)?max:value)
+#define PL_norm32(value, min, max) (((r32)value - (r32)min) / ((r32)max - (r32)min))
+#define PL_norm64(value, min, max) (((r64)value - (r64)min) / ((r64)max - (r64)min))
+#define PL_clamp(value, min, max) ((((value<min)?min:value)>max)?max:value)
+#define PL_clampmin(value, min) ((value<min)?min:value)
+#define PL_clampmax(value, max) ((value>max)?max:value)
+#define PL_clampn(value) ((((value<0.0f)?0.0f:value)>1.0f)?1.0f:value)
     
-    r32 PL_pi32(void); // returns 32bit pi
     r64 PL_pi64(void); // returns 64bit pi
+    r32 PL_pi32(void); // returns 32bit pi
     
-    r32 PL_sqrt(r32 v); // square root
     i32 PL_sign(i32 v); // sign of
     r32 PL_abs(r32 v); // absolute value
-    u32 PL_rotl(u32 v, i32 s); // rotate bits left (s times)
-    u32 PL_rotr(u32 v, i32 s); // rotate bits right (s times)
     i32 PL_round_i32(r32 v); // round r32 to nearest i32
     u32 PL_round_u32(r32 v); // round r32 to nearest u32
+    i32 PL_trunc_i32(r32 v); // truncate r32 to i32
     i32 PL_floor_i32(r32 v); // floor r32 to i32
     i32 PL_ceil_i32(r32 v); // ceil r32 to i32
-    i32 PL_trunc_i32(r32 v); // truncate r32 to i32
+    
+    r64 PL_norm64(r64 v, r64 min, r64 max); // normalize 0.0 - 1.0 (64bit)
+    r32 PL_norm32(r32 v, r32 min, r32 max); // normalize 0.0 - 1.0 (32bit)
+    
+    r32 PL_clamp(r32 v, r32 min, r32 max); // clamp between min and max
+    r32 PL_clampMin(r32 v, r32 min); // clamp to >= min
+    r32 PL_clampMax(r32 v, r32 max); // clamp to <= max
+    r32 PL_clampN(r32 v); // clamp to normalized value >= 0.0, <= 1.0
+    
+    u32 PL_rotl(u32 v, i32 s); // rotate bits left (s times)
+    u32 PL_rotr(u32 v, i32 s); // rotate bits right (s times)
+    
+    r32 PL_sqrt(r32 v); // square root
+    r32 PL_square(r32 v); // v*v
+    r32 PL_pow32(r32 v, r32 s); // v^s    
     r32 PL_sin(r32 a);
     r32 PL_cos(r32 a);
     r32 PL_atan2(r32 y, r32 x);
-    r32 PL_square(r32 v); // v*v
+    
     r32 PL_lerp(r32 a, r32 b, r32 t); // linear interpolation
     r32 PL_qlerp(r32 a, r32 b, r32 t); // quick lerp (less precise)
-    r32 PL_pow32(r32 v, r32 s); // v^s    
     
     /*===== RNG and Hashing =========*/
     // get hashed u32 from input (inputSize = sizeof input)
