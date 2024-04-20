@@ -226,8 +226,8 @@ defined(DEBUG) || \
     
     r64 PL_pi64(void); // returns 64bit pi
     r32 PL_pi32(void); // returns 32bit pi
-    r64 PL_2pi64(void); // returns 64bit 2*pi
-    r32 PL_2pi32(void); // returns 32bit 2*pi
+    r64 PL_tau64(void); // returns 64bit 2*pi
+    r32 PL_tau32(void); // returns 32bit 2*pi
     
     r32 PL_sqrt(r32 v); // square root
     r32 PL_square(r32 v); // v*v
@@ -261,7 +261,6 @@ defined(DEBUG) || \
     
     v2 v2perp(v2 a); // get perpendicular vector
     v2 v2hadamard(v2 a, v2 b); // hadamard product
-    
     r32 v2dot(v2 a, v2 b); // dot/inner product
     r32 v2lengthsq(v2 a); // a^2
     r32 v2length(v2 a); // sqrt(a^2)
@@ -305,6 +304,8 @@ extern "C" {
     
     v3 v3hadamard(v3 a, v3 b); // hadamard product
     r32 v3dot(v3 a, v3 b); // dot/inner product
+	r32 v3lengthsq(v3 a); // a^2
+    r32 v3length(v3 a); // sqrt(a^2)
     
 #ifdef __cplusplus
 }
@@ -344,6 +345,8 @@ extern "C" {
     
     v4 v4hadamard(v4 a, v4 b); // hadamard product
     r32 v4dot(v4 a, v4 b); // dot/inner product
+	r32 v4lengthsq(v4 a); // a^2
+    r32 v4length(v4 a); // sqrt(a^2)
     
     // C++ operators
 #ifdef __cplusplus

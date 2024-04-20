@@ -336,12 +336,12 @@ r32 PL_pi32(void)
     return (r32)3.141592653589793238463;
 }
 
-r64 PL_2pi64(void)
+r64 PL_tau64(void)
 {
     return (r64)6.283185307179586476925286766559L;
 }
 
-r32 PL_2pi32(void)
+r32 PL_tau32(void)
 {
     return (r32)6.2831853071795864769;
 }
@@ -362,6 +362,7 @@ r32 PL_atan2(r32 y, r32 x)
 }
 
 /*=========== Vectors =============*/
+// Thanks: Casey Muratori (Handmade Hero) for showing how to do vectors properly!
 
 // ------ v2 ------ //
 
@@ -418,7 +419,7 @@ r32 v2dot(v2 a, v2 b)
     r32 result = (a.i[0]*b.i[0]) + (a.i[1]*b.i[1]);
     return result;
 }
-r32 v2sq(v2 a)
+r32 v2lengthsq(v2 a)
 {
     r32 result = v2dot(a,a);
     return result;
@@ -479,6 +480,16 @@ r32 v3dot(v3 a, v3 b)
     r32 result = (a.i[0]*b.i[0]) + (a.i[1]*b.i[1]) + (a.i[2]*b.i[2]);
     return result;
 }
+r32 v3lengthsq(v3 a)
+{
+    r32 result = v3dot(a,a);
+    return result;
+}
+r32 v3length(v3 a)
+{
+    r32 result = PL_sqrt(v3sq(a));
+    return result;
+}
 
 // ------ v4 ------ //
 
@@ -528,6 +539,16 @@ v4 v4hadamard(v4 a, v4 b)
 r32 v4dot(v4 a, v4 b)
 {
     r32 result = (a.i[0]*b.i[0]) + (a.i[1]*b.i[1]) + (a.i[2]*b.i[2]);
+    return result;
+}
+r32 v4lengthsq(v4 a)
+{
+    r32 result = v4dot(a,a);
+    return result;
+}
+r32 v4length(v4 a)
+{
+    r32 result = PL_sqrt(v4sq(a));
     return result;
 }
 
