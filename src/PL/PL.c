@@ -426,7 +426,7 @@ r32 v2lengthsq(v2 a)
 }
 r32 v2length(v2 a)
 {
-    r32 result = PL_sqrt(v2sq(a));
+    r32 result = PL_sqrt(v2lengthsq(a));
     return result;
 }
 
