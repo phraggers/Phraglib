@@ -164,7 +164,7 @@ defined(DEBUG) || \
     u64 PL_StrCat(cstr src, cstr dst, u64 len);
     // print variables to string
     void PL_StrVar(cstr dst, u64 maxlen, const cstr format, ...);
-        
+    
     /*============================
             File IO
     =============================*/
@@ -201,9 +201,6 @@ defined(DEBUG) || \
     /*=======================
         Maths Functions
     =======================*/
-    r64 PL_pi64(void); // returns 64bit pi
-    r32 PL_pi32(void); // returns 32bit pi
-    
     i32 PL_sign(i32 v); // sign of
     r32 PL_abs(r32 v); // absolute value
     i32 PL_round_i32(r32 v); // round r32 to nearest i32
@@ -211,6 +208,7 @@ defined(DEBUG) || \
     i32 PL_trunc_i32(r32 v); // truncate r32 to i32
     i32 PL_floor_i32(r32 v); // floor r32 to i32
     i32 PL_ceil_i32(r32 v); // ceil r32 to i32
+    r32 PL_div(r32 n, r32 d); // divide n/d, if d==0, returns 0.0f
     
     r64 PL_norm64(r64 v, r64 min, r64 max); // normalize 0.0 - 1.0 (64bit)
     r32 PL_norm32(r32 v, r32 min, r32 max); // normalize 0.0 - 1.0 (32bit)
@@ -223,15 +221,145 @@ defined(DEBUG) || \
     u32 PL_rotl(u32 v, i32 s); // rotate bits left (s times)
     u32 PL_rotr(u32 v, i32 s); // rotate bits right (s times)
     
+    r32 PL_lerp(r32 a, r32 b, r32 t); // linear interpolation
+    r32 PL_qlerp(r32 a, r32 b, r32 t); // quick lerp (fewer CPU cycles but less precise)
+    
+    r64 PL_pi64(void); // returns 64bit pi
+    r32 PL_pi32(void); // returns 32bit pi
+    r64 PL_2pi64(void); // returns 64bit 2*pi
+    r32 PL_2pi32(void); // returns 32bit 2*pi
+    
     r32 PL_sqrt(r32 v); // square root
     r32 PL_square(r32 v); // v*v
-    r32 PL_pow32(r32 v, r32 s); // v^s    
+    r32 PL_pow32(r32 v, r32 s); // v^s
     r32 PL_sin(r32 a);
     r32 PL_cos(r32 a);
     r32 PL_atan2(r32 y, r32 x);
     
-    r32 PL_lerp(r32 a, r32 b, r32 t); // linear interpolation
-    r32 PL_qlerp(r32 a, r32 b, r32 t); // quick lerp (fewer CPU cycles but less precise)
+    /*======== Vectors ==========*/
+    
+    // ------ v2 ------ //
+    
+    typedef union
+    {
+        r32 i[2];
+        struct {r32 a,b;};
+        struct {r32 x,y;};
+        struct {r32 u,v;};
+    } v2;
+    
+    // constructors
+    v2 v2i(i32 a, i32 b);
+    v2 v2u(u32 a, u32 b);
+    v2 v2r(r32 a, r32 b);
+    
+    // operators
+    v2 v2add(v2 a, v2 b);
+    v2 v2sub(v2 a, v2 b);
+    v2 v2mul(v2 a, r32 v);
+    v2 v2div(v2 a, r32 v);
+    
+    v2 v2perp(v2 a); // get perpendicular vector
+    v2 v2hadamard(v2 a, v2 b); // hadamard product
+    
+    r32 v2dot(v2 a, v2 b); // dot/inner product
+    r32 v2lengthsq(v2 a); // a^2
+    r32 v2length(v2 a); // sqrt(a^2)
+    
+#ifdef __cplusplus
+}
+inline v2 operator+(v2 a, v2 b) {return {a.i[0]+b.i[0], a.i[1]+b.i[1]};}
+inline v2 &operator+=(v2 &a, v2 b) {a = a+b; return a;}
+inline v2 operator-(v2 a) {return {-a.i[0], -a.i[1]};}
+inline v2 operator-(v2 a, v2 b) {return {a.i[0]-b.i[0], a.i[1]-b.i[1]};}
+inline v2 &operator-=(v2 &a, v2 b) {a = a-b; return a;}
+inline v2 operator*(r32 a, v2 b) {return {b.i[0]*a, b.i[1]*a};}
+inline v2 operator*(v2 b, r32 a) {v2 result = a*b; return result;}
+inline v2 &operator*=(v2 &b, r32 a) {b = b*a; return b;}
+inline v2 operator/(v2 b, r32 a) {return {b.i[0]/a, b.i[1]/a};}
+inline v2 &operator/=(v2 &b, r32 a) {b = b/a; return b;}
+extern "C" {
+#endif
+    
+    // ------ v3 ------ //
+    
+    typedef union
+    {
+        r32 i[3];
+        union {struct{r32 x,y;}; v2 xy; r32 z;};
+        struct {r32 PAD0; v2 yz;};
+        struct {r32 u,v,w;};
+        struct {r32 r,g,b;};
+    } v3;
+    
+    // constructors
+    v3 v3i(i32 a, i32 b, i32 c);
+    v3 v3u(u32 a, u32 b, u32 c);
+    v3 v3r(r32 a, r32 b, r32 c);
+    
+    // operators
+    v3 v3add(v3 a, v3 b);
+    v3 v3sub(v3 a, v3 b);
+    v3 v3mul(v3 a, r32 v);
+    v3 v3div(v3 a, r32 v);
+    
+    v3 v3hadamard(v3 a, v3 b); // hadamard product
+    r32 v3dot(v3 a, v3 b); // dot/inner product
+    
+#ifdef __cplusplus
+}
+inline v3 operator+(v3 a, v3 b) {return {a.i[0]+b.i[0], a.i[1]+b.i[1], a.i[2]+b.i[2]};}
+inline v3 &operator+=(v3 &a, v3 b) {a = a+b; return a;}
+inline v3 operator-(v3 a) {return {-a.i[0], -a.i[1], -a.i[2]};}
+inline v3 operator-(v3 a, v3 b) {return {a.i[0]-b.i[0], a.i[1]-b.i[1], a.i[2]-b.i[2]};}
+inline v3 &operator-=(v3 &a, v3 b) {a = a-b; return a;}
+inline v3 operator*(r32 a, v3 b) {return {b.i[0]*a, b.i[1]*a, b.i[2]*a};}
+inline v3 operator*(v3 b, r32 a) {v3 result = a*b; return result;}
+inline v3 &operator*=(v3 &b, r32 a) {b = b*a; return b;}
+inline v3 operator/(v3 b, r32 a) {return {b.i[0]/a, b.i[1]/a, b.i[2]/a};}
+inline v3 &operator/=(v3 &b, r32 a) {b = b/a; return b;}
+extern "C" {
+#endif
+    
+    // ------ v4 ------ //
+    
+    typedef union
+    {
+        r32 i[4];
+        union {struct {r32 x,y,z;}; v3 xyz; r32 w;};
+        union {struct {r32 r,g,b;}; v3 rgb; r32 a;};
+        struct {r32 u,v,s,t);
+    } v4;
+    
+    // constructors
+    v4 v4i(i32 a, i32 b, i32 c, i32 d);
+    v4 v4u(u32 a, u32 b, u32 c, u32 d);
+    v4 v4r(r32 a, r32 b, r32 c, r32 d);
+    
+    // operators
+    v4 v4add(v4 a, v4 b);
+    v4 v4sub(v4 a, v4 b);
+    v4 v4mul(v4 a, r32 v);
+    v4 v4div(v4 a, r32 v);
+    
+    v4 v4hadamard(v4 a, v4 b); // hadamard product
+    r32 v4dot(v4 a, v4 b); // dot/inner product
+    
+    // C++ operators
+#ifdef __cplusplus
+}
+inline v4 operator+(v4 a, v4 b) {return {a.i[0]+b.i[0], a.i[1]+b.i[1], a.i[2]+b.i[2], a.i[3]+b.i[3]};}
+inline v4 &operator+=(v4 &a, v4 b) {a = a+b; return a;}
+inline v4 operator-(v4 a) {return {-a.i[0], -a.i[1], -a.i[2], -a.i[3]};}
+inline v4 operator-(v4 a, v4 b) {return {a.i[0]-b.i[0], a.i[1]-b.i[1], a.i[2]-b.i[2], a.i[3]-b.i[3]};}
+inline v4 &operator-=(v4 &a, v4 b) {a = a-b; return a;}
+inline v4 operator*(r32 a, v4 b) {return {b.i[0]*a, b.i[1]*a, b.i[2]*a, b.i[3]*a};}
+inline v4 operator*(v4 b, r32 a) {v4 result = a*b; return result;}
+inline v4 &operator*=(v4 &b, r32 a) {b = b*a; return b;}
+inline v4 operator/(v4 b, r32 a) {return {b.i[0]/a, b.i[1]/a, b.i[2]/a, b.i[3]/a};}
+inline v4 &operator/=(v4 &b, r32 a) {b = b/a; return b;}
+extern "C" {
+#endif
     
     /*===== RNG and Hashing =========*/
     // get hashed u32 from input (inputSize = sizeof input)
@@ -528,7 +656,7 @@ defined(DEBUG) || \
     PL_Window *PL_GetWindow(void);
     // set window title
     void PL_SetWindowTitle(cstr title);
-    // set window screen pos
+    // set window screen pos (any param set to -1 will be unchanged)
     void PL_SetWindowPos(i32 x, i32 y, i32 w, i32 h);
     // set desired framerate (no effect if vsync is enabled)
     void PL_SetWindowFramerate(i32 framerate);

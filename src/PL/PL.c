@@ -214,16 +214,6 @@ void PL_SetErrorString(const cstr format, ...);
 
 /*============= Maths Functions ==================*/
 
-r64 PL_pi64(void)
-{
-    return (r64)3.141592653589793238462643383279502884L;
-}
-
-r32 PL_pi32(void)
-{
-    return (r32)3.141592653589793238463;
-}
-
 i32 PL_sign(i32 v)
 {
     return (v>=0)? 1 : -1;
@@ -257,6 +247,16 @@ i32 PL_floor_i32(r32 v)
 i32 PL_ceil_i32(r32 v)
 {
     return (i32)ceilf(v);
+}
+
+r32 PL_div(r32 n, r32 d)
+{
+    if(d != 0.0f)
+    {
+        return n/d;
+    }
+    
+    return 0.0f;
 }
 
 r64 PL_norm64(r64 v, r64 min, r64 max)
@@ -301,6 +301,16 @@ u32 PL_rotr(u32 v, i32 s)
     return ((v>>s) | (v<<(32-s)));
 }
 
+r32 PL_lerp(r32 a, r32 b, r32 t)
+{
+    return ((1.0f-t) *a) + (t*b);
+}
+
+r32 PL_qlerp(r32 a, r32 b, r32 t)
+{
+    return a + t * (b - a);
+}
+
 r32 PL_sqrt(r32 v)
 {
     return sqrtf(v);
@@ -314,6 +324,26 @@ r32 PL_square(r32 v)
 r32 PL_pow32(r32 v, r32 s)
 {
     return powf(v,s);
+}
+
+r64 PL_pi64(void)
+{
+    return (r64)3.141592653589793238462643383279502884L;
+}
+
+r32 PL_pi32(void)
+{
+    return (r32)3.141592653589793238463;
+}
+
+r64 PL_2pi64(void)
+{
+    return (r64)6.283185307179586476925286766559L;
+}
+
+r32 PL_2pi32(void)
+{
+    return (r32)6.2831853071795864769;
 }
 
 r32 PL_sin(r32 a)
@@ -331,14 +361,174 @@ r32 PL_atan2(r32 y, r32 x)
     return atan2f(y,x);
 }
 
-r32 PL_lerp(r32 a, r32 b, r32 t)
+/*=========== Vectors =============*/
+
+// ------ v2 ------ //
+
+// constructors
+v2 v2i(i32 a, i32 b)
 {
-    return ((1.0f-t) *a) + (t*b);
+    v2 result = {(r32)a, (r32)b};
+    return result;
+}
+v2 v2u(u32 a, u32 b)
+{
+    v2 result = {(r32)a, (r32)b};
+    return result;    
+}
+v2 v2r(r32 a, r32 b)
+{
+    v2 result = {a, b};
+    return result;    
 }
 
-r32 PL_qlerp(r32 a, r32 b, r32 t)
+// maths operators
+v2 v2add(v2 a, v2 b)
 {
-    return a + t * (b - a);
+    v2 result = {a.i[0]+b.i[0], a.i[1]+b.i[1]};
+    return result;
+}
+v2 v2sub(v2 a, v2 b)
+{
+    v2 result = {a.i[0]-b.i[0], a.i[1]-b.i[1]};
+    return result;
+}
+v2 v2mul(v2 a, r32 v)
+{
+    v2 result = {a.i[0]*v, a.i[1]*v};
+    return result;
+}
+v2 v2div(v2 a, r32 v)
+{
+    v2 result = {a.i[0]/v, a.i[1]/v};
+    return result;    
+}
+v2 v2perp(v2 a)
+{
+    v2 result = {-a.y, a.x};
+    return result;
+}
+v2 v2hadamard(v2 a, v2 b)
+{
+    v2 result = {a.i[0]*b.i[0], a.i[1]*b.i[1]};
+    return result;
+}
+r32 v2dot(v2 a, v2 b)
+{
+    r32 result = (a.i[0]*b.i[0]) + (a.i[1]*b.i[1]);
+    return result;
+}
+r32 v2sq(v2 a)
+{
+    r32 result = v2dot(a,a);
+    return result;
+}
+r32 v2length(v2 a)
+{
+    r32 result = PL_sqrt(v2sq(a));
+    return result;
+}
+
+// ------ v3 ------ //
+
+// constructors
+v3 v3i(i32 a, i32 b, i32 c)
+{
+    v3 result = {(r32)a, (r32)b, (r32)c};
+    return result;
+}
+v3 v3u(u32 a, u32 b, u32 c)
+{
+    v3 result = {(r32)a, (r32)b, (r32)c};
+    return result;    
+}
+v3 v3r(r32 a, r32 b, r32 c)
+{
+    v3 result = {a, b, c};
+    return result;    
+}
+
+// maths operators
+v3 v3add(v3 a, v3 b)
+{
+    v3 result = {a.i[0]+b.i[0], a.i[1]+b.i[1], a.i[2]+b.i[2]};
+    return result;
+}
+v3 v3sub(v3 a, v3 b)
+{
+    v3 result = {a.i[0]-b.i[0], a.i[1]-b.i[1], a.i[2]-b.i[2]};
+    return result;
+}
+v3 v3mul(v3 a, r32 v)
+{
+    v3 result = {a.i[0]*v, a.i[1]*v, a.i[2]*v};
+    return result;
+}
+v3 v3div(v3 a, r32 v)
+{
+    v3 result = {a.i[0]/v, a.i[1]/v, a.i[2]/v};
+    return result;    
+}
+v3 v3hadamard(v3 a, v3 b)
+{
+    v3 result = {a.i[0]*b.i[0], a.i[1]*b.i[1], a.i[2]*b.i[2]};
+    return result;
+}
+r32 v3dot(v3 a, v3 b)
+{
+    r32 result = (a.i[0]*b.i[0]) + (a.i[1]*b.i[1]) + (a.i[2]*b.i[2]);
+    return result;
+}
+
+// ------ v4 ------ //
+
+// constructors
+v4 v4i(i32 a, i32 b, i32 c, i32 d)
+{
+    v4 result = {(r32)a, (r32)b, (r32)c, (r32)d};
+    return result;
+}
+v4 v4u(u32 a, u32 b, u32 c, u32 d)
+{
+    v4 result = {(r32)a, (r32)b, (r32)c, (r32)d};
+    return result;    
+}
+v4 v4r(r32 a, r32 b, r32 c, r32 d)
+{
+    v4 result = {a, b, c, d};
+    return result;    
+}
+
+// maths operators
+v4 v4add(v4 a, v4 b)
+{
+    v4 result = {a.i[0]+b.i[0], a.i[1]+b.i[1], a.i[2]+b.i[2], a.i[3]+b.i[3]};
+    return result;
+}
+v4 v4sub(v4 a, v4 b)
+{
+    v4 result = {a.i[0]-b.i[0], a.i[1]-b.i[1], a.i[2]-b.i[2], a.i[3]+b.i[3]};
+    return result;
+}
+v4 v4mul(v4 a, r32 v)
+{
+    v4 result = {a.i[0]*v, a.i[1]*v, a.i[2]*v, a.i[3]*v};
+    return result;
+}
+v4 v4div(v4 a, r32 v)
+{
+    v4 result = {a.i[0]/v, a.i[1]/v, a.i[2]/v, a.i[3]/v};
+    return result;    
+}
+v4 v4hadamard(v4 a, v4 b)
+{
+    v4 result = {a.i[0]*b.i[0], a.i[1]*b.i[1], a.i[2]*b.i[2]};
+    return result;
+}
+r32 v4dot(v4 a, v4 b)
+{
+    r32 result = (a.i[0]*b.i[0]) + (a.i[1]*b.i[1]) + (a.i[2]*b.i[2]);
+    return result;
 }
 
 /*=========== HASH =============*/
@@ -699,7 +889,7 @@ static b32 Win32_LoadWGLLib(void)
     WIN32_LOAD_DLLFN(wglDeleteContext);
     WIN32_LOAD_DLLFN(wglGetProcAddress);
     WIN32_LOAD_DLLFN(wglMakeCurrent);
-        
+    
     return 1;
 }
 
@@ -2197,7 +2387,7 @@ static void Win32_AudioInit(void)
 #endif
     if(FAILED(ecode))
     {
-           PL_SetErrorString("Failed to submit XAudio2 buffer. Code(%d)", ecode);
+        PL_SetErrorString("Failed to submit XAudio2 buffer. Code(%d)", ecode);
         return;
     }
     
@@ -2369,7 +2559,7 @@ LRESULT CALLBACK Win32_WndProc(HWND window,
                                LPARAM lParam)
 {
     LRESULT result = 0;
-        
+    
     Win32_Window *win32_window = &win32_state->window;
     PL_Window *pl_window = &win32_window->window;
     PL_Input *input = &win32_state->input;
@@ -2639,7 +2829,7 @@ static void Win32_ProcessInput(r64 dT)
             buttons[mouseBtnIndex].upTick = 1;
         }
     }
-
+    
     PL_Gamepad *gamepads = win32_state->input.gamepads;
     for(int gamepadIndex = 0;
         gamepadIndex < XUSER_MAX_COUNT;
@@ -2920,10 +3110,10 @@ static b32 Win32_CreateWindow(void)
     
     win32_window->style = WS_VISIBLE | WS_OVERLAPPEDWINDOW;
     win32_window->handle = CreateWindowExA(0, wndclass->lpszClassName,
-                                          "Window", win32_window->style,
-                                          CW_USEDEFAULT, CW_USEDEFAULT,
-                                          pl_window->dim.w, pl_window->dim.h, 0, 0,
-                                          wndclass->hInstance, 0);
+                                           "Window", win32_window->style,
+                                           CW_USEDEFAULT, CW_USEDEFAULT,
+                                           pl_window->dim.w, pl_window->dim.h, 0, 0,
+                                           wndclass->hInstance, 0);
     
     if(!win32_window->handle)
     {
@@ -3133,6 +3323,19 @@ void PL_SetWindowTitle(cstr title)
 
 void PL_SetWindowPos(i32 x, i32 y, i32 w, i32 h)
 {
+    RECT dim = {0};
+    GetClientRect(win32_state->window.handle, &dim);
+    win32_state->window.window.dim.w = dim.right;
+    win32_state->window.window.dim.h = dim.bottom;
+    GetWindowRect(win32_state->window.handle, &dim);
+    win32_state->window.window.dim.x = dim.left;
+    win32_state->window.window.dim.y = dim.top;
+    
+    if(x == -1) x = dim.left;
+    if(y == -1) y = dim.top;
+    if(w == -1) w = dim.right;
+    if(h == -1) h = dim.bottom;
+    
     MoveWindow(win32_state->window.handle, x,y,w,h, 0);
 }
 
